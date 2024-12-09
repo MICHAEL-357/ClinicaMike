@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalles de la Cita</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <h1>Detalles de la Cita</h1>
+        <p><strong>Doctor:</strong> {{ cita.doctor.username }}</p>
+        <p><strong>Motivo:</strong> {{ cita.motivo }}</p>
+        <p><strong>Fecha Programada:</strong> 
+            {% if cita.fecha %}
+                {{ cita.fecha|date:"d \d\e F \d\e Y" }}
+            {% else %}
+                Pendiente
+            {% endif %}
+        </p>
+        <p><strong>Hora Programada:</strong> 
+            {% if cita.hora %}
+                {{ cita.hora|time:"H:i" }}
+            {% else %}
+                Pendiente
+            {% endif %}
+        </p>
+        
+        
+        <p><strong>Estado:</strong> 
+            {% if cita.estado == 'aceptada' %}
+                <span class="badge badge-success">Aceptada</span>
+            {% elif cita.estado == 'rechazada' %}
+                <span class="badge badge-danger">Rechazada</span>
+            {% else %}
+                <span class="badge badge-warning">Pendiente</span>
+            {% endif %}
+        </p>
+        {% if cita.estado == 'aceptada' %}
+    <a href="{% url 'editar_cita_paciente' cita.id %}" class="btn btn-warning">Editar Cita</a>
+{% else %}
+    <p class="text-muted">No puedes editar esta cita porque está en estado "{{ cita.estado }}".</p>
+{% endif %}
+
+        <a href="{% url 'dashboard_paciente' paciente_id=cita.paciente.id %}" class="btn btn-primary">Volver</a>
+    </div>
+</body>
+</html>

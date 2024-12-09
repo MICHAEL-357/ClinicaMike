@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar Cita</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-5">
+        <h2>Editar Cita</h2>
+        
+        <h3>Paciente: {{ cita.paciente.username }}</h3>
+        <p><strong>Motivo:</strong> {{ cita.motivo }}</p>
+
+        <!-- Mostrar solo si la cita está en estado 'programada' o 'aceptada' -->
+        {% if cita.estado == 'programada' or cita.estado == 'aceptada' %}
+            <form method="POST">
+                {% csrf_token %}
+                
+                <div class="form-group">
+                    <label for="fecha">Fecha</label>
+                    <input type="date" class="form-control" id="fecha" name="fecha" value="{{ cita.fecha }}" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="hora">Hora</label>
+                    <input type="time" class="form-control" id="hora" name="hora" value="{{ cita.hora }}" required>
+                </div>
+                
+                <button type="button" class="btn btn-primary" id="guardar-btn">Guardar Cambios</button>
+            </form>
+        {% else %}
+            <p class="text-danger">No puedes editar esta cita porque no está en estado programada o aceptada.</p>
+        {% endif %}
+        
+        <!-- Botón de Cancelar -->
+        <button type="button" class="btn btn-secondary" id="cancelar-btn">Cancelar</button>
+    </div>
+
+    <!-- Modal de Confirmación -->
+    <div class="modal fade" id="confirmModal" tabindex="-1" role="dialog" aria-labelledby="confirmModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="confirmModalLabel">Confirmar Edición</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p><strong>Paciente:</strong> {{ cita.paciente.username }}</p>
+                    <p><strong>Motivo:</strong> {{ cita.motivo }}</p>
+                    <p><strong>Fecha Seleccionada:</strong> <span id="fecha-confirmacion"></span></p>
+                    <p><strong>Hora Seleccionada:</strong> <span id="hora-confirmacion"></span></p>
+                    <p>¿Deseas guardar estos cambios?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" id="cancelar-btn-modal">Cancelar</button>
+                    <button type="button" id="confirmar-btn" class="btn btn-primary">Confirmar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        // Capturar el clic en "Guardar Cambios"
+        document.getElementById('guardar-btn').addEventListener('click', function() {
+            const fechaSeleccionada = document.getElementById('fecha').value;
+            const horaSeleccionada = document.getElementById('hora').value;
+
+            if (!fechaSeleccionada || !horaSeleccionada) {
+                alert("Por favor, completa todos los campos antes de continuar.");
+                return;
+            }
+
+            document.getElementById('fecha-confirmacion').textContent = fechaSeleccionada;
+            document.getElementById('hora-confirmacion').textContent = horaSeleccionada;
+
+            $('#confirmModal').modal('show'); // Mostrar el modal
+        });
+
+        // Enviar el formulario cuando se confirme
+        document.getElementById('confirmar-btn').addEventListener('click', function() {
+            document.querySelector('form').submit(); // Enviar el formulario
+        });
+
+        // Capturar el clic en "Cancelar"
+        document.getElementById('cancelar-btn').addEventListener('click', function(event) {
+            // Evitar la redirección automática
+            event.preventDefault();
+            
+            // Mostrar cuadro de confirmación
+            const confirmarCancelacion = confirm("¿Estás seguro de que deseas cancelar la edición de la cita? Los cambios no se guardarán.");
+
+            if (confirmarCancelacion) {
+                // Si el usuario confirma, redirigir
+                window.location.href = "{% url 'dashboard_doctor' %}"; // Redirige al dashboard
+            }
+            // Si el usuario no confirma, no hacer nada
+        });
+    </script>
+</body>
+</html>

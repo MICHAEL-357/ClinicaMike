@@ -20,3 +20,22 @@ def main():
 
 if __name__ == '__main__':
     main()
+
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
+
+# Configura tus datos de superusuario aquí
+SUPERUSER_USERNAME = "admin"
+SUPERUSER_EMAIL = "josemigueltecum@gmail.com"
+SUPERUSER_PASSWORD = "12345"
+
+if not User.objects.filter(username=SUPERUSER_USERNAME).exists():
+    User.objects.create_superuser(
+        username=SUPERUSER_USERNAME,
+        email=SUPERUSER_EMAIL,
+        password=SUPERUSER_PASSWORD,
+    )
+    print("Superusuario creado exitosamente.")
+else:
+    print("El superusuario ya existe.")

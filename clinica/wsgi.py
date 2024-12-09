@@ -14,3 +14,7 @@ from django.core.wsgi import get_wsgi_application
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'clinica.settings')
 
 application = get_wsgi_application()
+
+import os
+if os.getenv('CREATE_SUPERUSER', 'false').lower() == 'true':
+    from usuarios.create_superuser import *

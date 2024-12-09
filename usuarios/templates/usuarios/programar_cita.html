@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Programar Cita</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1>Programar Cita</h1>
+        <p>Estás programando la cita para el paciente: <strong>{{ cita.paciente.username }}</strong></p>
+
+        <form method="POST">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="fecha">Fecha Programada:</label>
+                <input type="date" id="fecha" name="fecha" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label for="hora">Hora Programada:</label>
+                <input type="time" id="hora" name="hora" class="form-control" required>
+            </div>
+            <button type="submit" class="btn btn-success">Guardar</button>
+        </form>
+
+        <br>
+        <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#confirmCancelModal">Volver al Dashboard</button>
+    </div>
+
+    <!-- Modal de Confirmación para Cancelar -->
+    <div class="modal fade" id="confirmCancelModal" tabindex="-1" role="dialog" aria-labelledby="confirmCancelModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="confirmCancelModalLabel">Confirmar Cancelación</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>¿Estás seguro de que deseas cancelar y volver al Dashboard? Los cambios no guardados se perderán.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                    <a href="{% url 'dashboard_doctor' %}" class="btn btn-primary">Volver al Dashboard</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Confirmación de Programación -->
+    <div class="modal fade" id="confirmModal" tabindex="-1" role="dialog" aria-labelledby="confirmModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="confirmModalLabel">Confirmar Programación</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p><strong>Paciente:</strong> <span id="paciente-confirmacion">{{ cita.paciente.username }}</span></p>
+                    <p><strong>Fecha Programada:</strong> <span id="fecha-confirmacion"></span></p>
+                    <p><strong>Hora Programada:</strong> <span id="hora-confirmacion"></span></p>
+                    <p>¿Deseas continuar con la programación?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                    <button type="button" id="confirmar-btn" class="btn btn-primary">Confirmar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        // Capturar los datos ingresados en el formulario y mostrarlos en el modal
+        document.querySelector('button[type="submit"]').addEventListener('click', function(event) {
+            event.preventDefault(); // Evita el envío inmediato del formulario
+
+            const fechaSeleccionada = document.getElementById('fecha').value;
+            const horaSeleccionada = document.getElementById('hora').value;
+
+            if (!fechaSeleccionada || !horaSeleccionada) {
+                alert("Por favor, completa todos los campos antes de continuar.");
+                return;
+            }
+
+            document.getElementById('fecha-confirmacion').textContent = fechaSeleccionada;
+            document.getElementById('hora-confirmacion').textContent = horaSeleccionada;
+
+            $('#confirmModal').modal('show'); // Mostrar el modal de confirmación
+        });
+
+        // Confirmar y enviar el formulario
+        document.getElementById('confirmar-btn').addEventListener('click', function() {
+            document.querySelector('form').submit(); // Enviar el formulario
+        });
+    </script>
+</body>
+</html>

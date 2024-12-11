@@ -22,7 +22,7 @@
         }
 
         .container p, .container h1, .container h2 {
-            color: #000000;  /* Color oscuro para el texto */
+            color: #000000;
         }
 
         h1 {
@@ -47,7 +47,7 @@
             padding: 15px;
             border-radius: 8px;
             margin-bottom: 15px;
-            color: #333;  /* Color oscuro para el texto dentro de las citas */
+            color: #333;
         }
 
         .cita-item strong {
@@ -86,49 +86,111 @@
 <body>
 
     <div class="container">
+        <div class="row mb-4">
+            <div class="col text-center">
+                <a href="{% url 'registrar_cita' %}" class="btn-custom">Registrar una nueva cita</a>
+                <a href="#" class="btn-custom" id="logoutBtn">Cerrar sesión</a>
+            </div>
+        </div>
+
         <h1>Bienvenido al Dashboard de Paciente</h1>
         <p>Aquí puedes agendar tus citas médicas.</p>
 
-        <h2>Tus Citas</h2>
-        <ul class="list-unstyled">
-            {% for cita in citas %}
-                <li class="cita-item">
-                    <strong>
-                        {% if cita.fecha and cita.hora %}
-                            {{ cita.fecha|date:"d \d\e F \d\e Y" }} a las {{ cita.hora|time:"H:i" }}
-                        {% else %}
-                            Creada el {{ cita.creado_el|date:"d \d\e F \d\e Y" }} a las {{ cita.creado_el|time:"H:i" }}
-                        {% endif %}
-                    </strong> 
-                    con el Dr. {{ cita.doctor.username }} <br>
-                    Motivo: {{ cita.motivo }} <br>
-                    Estado: 
+        <h2>Tus Citas Aceptadas</h2>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Fecha y Hora</th>
+                    <th>Doctor</th>
+                    <th>Motivo</th>
+                    <th>Acción</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for cita in citas %}
                     {% if cita.estado == 'aceptada' %}
-                        <span class="badge badge-success">Aceptada</span>
-                    {% elif cita.estado == 'rechazada' %}
-                        <span class="badge badge-danger">Rechazada</span>
-                    {% else %}
-                        <span class="badge badge-warning">Pendiente</span>
+                        <tr>
+                            <td>{{ cita.fecha|date:"d \d\e F \d\e Y" }} a las {{ cita.hora|time:"H:i" }}</td>
+                            <td>Dr. {{ cita.doctor.username }}</td>
+                            <td>{{ cita.motivo }}</td>
+                            <td><a href="{% url 'detalle_cita' cita.id %}" class="btn btn-info">Ver Detalles</a></td>
+                        </tr>
                     {% endif %}
-                    <br>
-                    <a href="{% url 'detalle_cita' cita.id %}" class="btn btn-info">Ver Detalles</a>
-                </li>
-            {% empty %}
-                <p>No tienes citas registradas.</p>
-            {% endfor %}
-        </ul>
-        
-        
+                {% empty %}
+                    <tr><td colspan="4" class="text-center">No tienes citas aceptadas.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
 
+        <h2>Tus Citas Pendientes</h2>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Fecha y Hora</th>
+                    <th>Doctor</th>
+                    <th>Motivo</th>
+                    <th>Acción</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for cita in citas %}
+                    {% if cita.estado == 'pendiente' %}
+                        <tr>
+                            <td>{{ cita.fecha|date:"d \d\e F \d\e Y" }} a las {{ cita.hora|time:"H:i" }}</td>
+                            <td>Dr. {{ cita.doctor.username }}</td>
+                            <td>{{ cita.motivo }}</td>
+                            <td><a href="{% url 'detalle_cita' cita.id %}" class="btn btn-info">Ver Detalles</a></td>
+                        </tr>
+                    {% endif %}
+                {% empty %}
+                    <tr><td colspan="4" class="text-center">No tienes citas pendientes.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
 
-        <div class="footer">
-            <a href="{% url 'registrar_cita' %}" class="btn-custom">Registrar una nueva cita</a>
-            <br>
-            <br>
-            <br>
-            <a href="{% url 'home' %}" class="btn-custom">Cerrar sesión</a>
-        </div>
+        <h2>Tus Citas Rechazadas</h2>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Fecha y Hora</th>
+                    <th>Doctor</th>
+                    <th>Motivo</th>
+                    <th>Acción</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for cita in citas %}
+                    {% if cita.estado == 'rechazada' %}
+                        <tr>
+                            <td>{{ cita.fecha|date:"d \d\e F \d\e Y" }} a las {{ cita.hora|time:"H:i" }}</td>
+                            <td>Dr. {{ cita.doctor.username }}</td>
+                            <td>{{ cita.motivo }}</td>
+                            <td><a href="{% url 'detalle_cita' cita.id %}" class="btn btn-info">Ver Detalles</a></td>
+                        </tr>
+                    {% endif %}
+                {% empty %}
+                    <tr><td colspan="4" class="text-center">No tienes citas rechazadas.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
+
+    <script>
+        document.querySelector('#logoutBtn').addEventListener('click', function(event) {
+            // Prevenir el comportamiento por defecto del enlace
+            event.preventDefault();
+
+            // Realizar la acción de cierre de sesión (esto depende de tu implementación, por ejemplo, un view que elimine la sesión)
+            fetch("{% url 'logout' %}", { method: 'POST' })
+                .then(response => {
+                    // Redirigir a la página de inicio después de cerrar sesión
+                    window.location.href = "{% url 'home' %}";
+                })
+                .catch(error => {
+                    console.error('Error al cerrar sesión:', error);
+                });
+        });
+    </script>
 
 </body>
 </html>

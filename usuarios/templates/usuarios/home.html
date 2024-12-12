@@ -1,4 +1,3 @@
-{% load static %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -6,7 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Clínica - Página de Inicio</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="{% static 'styles.css' %}" rel="stylesheet"> 
+    <style>
+        /* Ajustar tamaño de las imágenes del carrusel */
+        .carousel-inner img {
+            max-height: 600px; /* Cambia la altura aquí según lo necesites */
+            object-fit: cover; /* Recorta la imagen para que se ajuste bien */
+        }
+
+        /* Ajustar las imágenes de los doctores al mismo tamaño */
+        .doctor-img {
+            height: 450px; /* Establece una altura fija para las imágenes */
+            object-fit: cover; /* Asegura que la imagen no se deforme */
+            width: 100%; /* Hace que la imagen ocupe todo el ancho del contenedor */
+        }
+    </style>
 </head>
 <body>
 
@@ -34,13 +46,19 @@
         <div id="carouselExample" class="carousel slide" data-bs-ride="carousel">
             <div class="carousel-inner">
                 <div class="carousel-item active">
-                    <img src="https://images.adsttc.com/media/images/5478/10cd/e58e/ce98/5800/00db/large_jpg/Sendagrup_010.jpg?1417154748" class="d-block w-100" alt="Imagen 1">
+                    <img src="https://images.adsttc.com/media/images/5478/10cd/e58e/ce98/5800/00db/large_jpg/Sendagrup_010.jpg?1417154748" 
+                         class="d-block w-100" 
+                         alt="Imagen 1">
                 </div>
                 <div class="carousel-item">
-                    <img src="https://medially.co/wp-content/uploads/2023/07/medidas-consultorios-medicos.jpg" class="d-block w-100" alt="Imagen 2">
+                    <img src="https://medially.co/wp-content/uploads/2023/07/medidas-consultorios-medicos.jpg" 
+                         class="d-block w-100" 
+                         alt="Imagen 2">
                 </div>
                 <div class="carousel-item">
-                    <img src="https://www.ucinmedica.com/wp-content/uploads/2020/11/mobiliairo-y-equipo-medico-consultorio-medico.jpeg" class="d-block w-100" alt="Imagen 3">
+                    <img src="https://www.ucinmedica.com/wp-content/uploads/2020/11/mobiliairo-y-equipo-medico-consultorio-medico.jpeg" 
+                         class="d-block w-100" 
+                         alt="Imagen 3">
                 </div>
             </div>
             <button class="carousel-control-prev" type="button" data-bs-target="#carouselExample" data-bs-slide="prev">
@@ -54,10 +72,30 @@
 
     <!-- Sección Sobre Nosotros -->
     <section id="sobre-nosotros" class="py-5">
-        <div class="container text-center">
-            <h2>Misión y Visión</h2>
-            <p class="mt-3">Nuestra misión es proporcionar servicios médicos de calidad con un enfoque humanista, y nuestra visión es ser reconocidos como líderes en el cuidado de la salud.</p>
+        <div class="container text-center py-5">
+            <h2 class="mb-4">Nuestra Historia, Misión y Visión</h2>
+            <div class="row">
+                <div class="col-md-4">
+                    <h3>Historia</h3>
+                    <p class="mt-3">
+                        Fundada en el año [Año de Fundación], nuestra clínica nació con el propósito de transformar el cuidado de la salud en nuestra comunidad. Desde nuestros inicios, hemos trabajado con dedicación y compromiso para ofrecer servicios médicos integrales, combinando tecnología avanzada con un trato humano y cálido. A lo largo de los años, hemos crecido gracias a la confianza de nuestros pacientes y al esfuerzo continuo de nuestro equipo profesional.
+                    </p>
+                </div>
+                <div class="col-md-4">
+                    <h3>Misión</h3>
+                    <p class="mt-3">
+                        Proporcionar servicios médicos de excelencia, basados en un enfoque humanista, ético y profesional. Nos esforzamos por garantizar el bienestar de nuestros pacientes a través de diagnósticos precisos, tratamientos efectivos y un equipo médico comprometido con la mejora constante.
+                    </p>
+                </div>
+                <div class="col-md-4">
+                    <h3>Visión</h3>
+                    <p class="mt-3">
+                        Ser reconocidos como líderes en el sector salud, destacándonos por la innovación, la calidad de nuestros servicios y el impacto positivo en la vida de las personas. Aspiramos a ser una institución que inspire confianza y se convierta en el referente principal para el cuidado integral de la salud.
+                    </p>
+                </div>
+            </div>
         </div>
+        
     </section>
 
     <!-- Sección Doctores -->
@@ -67,7 +105,7 @@
             <div class="row mt-4">
                 <div class="col-md-4">
                     <div class="card">
-                        <img src="https://via.placeholder.com/150" class="card-img-top" alt="Doctor 1">
+                        <img src="https://st4.depositphotos.com/1325771/39150/i/450/depositphotos_391507238-stock-photo-confident-smiling-doctor-posing-in.jpg" class="card-img-top doctor-img" alt="Doctor 1">
                         <div class="card-body">
                             <h5 class="card-title">Dr. Juan Pérez</h5>
                             <p class="card-text">Especialista en Cardiología.</p>
@@ -76,7 +114,7 @@
                 </div>
                 <div class="col-md-4">
                     <div class="card">
-                        <img src="https://via.placeholder.com/150" class="card-img-top" alt="Doctor 2">
+                        <img src="https://staticnew-prod.topdoctors.com.co/article/11458/image/large/386be322cdfca8d831655dece5f6a6a9-1709907700-1709907782.jpg" class="card-img-top doctor-img" alt="Doctor 2">
                         <div class="card-body">
                             <h5 class="card-title">Dra. María López</h5>
                             <p class="card-text">Especialista en Pediatría.</p>
@@ -85,7 +123,7 @@
                 </div>
                 <div class="col-md-4">
                     <div class="card">
-                        <img src="https://via.placeholder.com/150" class="card-img-top" alt="Doctor 3">
+                        <img src="https://st5.depositphotos.com/62628780/64648/i/450/depositphotos_646483214-stock-photo-proud-portrait-man-doctor-isolated.jpg" class="card-img-top doctor-img" alt="Doctor 3">
                         <div class="card-body">
                             <h5 class="card-title">Dr. Luis García</h5>
                             <p class="card-text">Especialista en Dermatología.</p>
@@ -114,9 +152,9 @@
         <div class="container">
             <p>&copy; 2024 Clínica. Todos los derechos reservados.</p>
         </div>
+
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="{% static 'scripts.js' %}"></script> <!-- Enlace al JS externo -->
 </body>
 </html>

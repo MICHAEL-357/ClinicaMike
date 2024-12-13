@@ -1,0 +1,19 @@
+{% extends 'usuarios/base_dashboard_paciente.html' %}
+
+{% block content %}
+    <h2>Notificaciones para Paciente</h2>
+    <hr>
+    {% if notifications %}
+        <ul>
+            {% for notification in notifications %}
+                <li>
+                    <strong>{{ notification.message }}</strong><br>
+                    <small>({{ notification.created_at|date:"d M Y H:i" }})</small>
+                </li>
+                <hr>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No tienes notificaciones.</p>
+    {% endif %}
+{% endblock %}

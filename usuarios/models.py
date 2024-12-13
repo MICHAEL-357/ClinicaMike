@@ -1,5 +1,8 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from django.contrib.auth.models import User
+from django.conf import settings
+
 
 class Usuario(AbstractUser):
     ADMINISTRADOR = 'admin'
@@ -50,3 +53,15 @@ class Cita(models.Model):
 
     def __str__(self):
         return f"Cita de {self.paciente.username} con {self.doctor.username} el {self.fecha} a las {self.hora} - {self.estado}"
+    
+    
+    
+
+class Notification(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='notifications')
+    message = models.TextField()
+    is_read = models.BooleanField(default=False)  # Para saber si ya fue leída
+    created_at = models.DateTimeField(auto_now_add=True)  # Fecha y hora de creación
+
+    def __str__(self):
+        return f"Notificación para {self.user.username}: {self.message}"

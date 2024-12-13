@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registro de Pacientes</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <style>
         body {
             background-color: #f4f7fc;
@@ -58,18 +59,75 @@
     </style>
 </head>
 <body>
-
     <div class="register-container">
         <h1>Registro de Pacientes</h1>
-        <form method="POST">
+        <form id="registerForm" method="POST">
             {% csrf_token %}
             <div class="form-group">
                 {{ form.as_p }}
             </div>
             <button type="submit" class="btn btn-primary btn-block">Registrarse</button>
         </form>
-        <p class="footer">¿Ya tienes cuenta? <a href="{% url 'login' %}">Inicia sesión aquí</a>.</p>
+        <p class="footer">
+            ¿Ya tienes cuenta? 
+            <a href="{% url 'login' %}" id="loginLink">Inicia sesión aquí</a>.
+        </p>
     </div>
 
+    <!-- SweetAlert2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        document.getElementById('registerForm').addEventListener('submit', function (event) {
+            event.preventDefault(); // Evitar el envío automático del formulario
+
+            // Mostrar mensaje de confirmación
+            Swal.fire({
+                title: '¿Estás seguro de que deseas registrarte?',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Sí, registrarme',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Obtener datos del formulario
+                    const formData = new FormData(this);
+                    const username = formData.get('username');
+                    const email = formData.get('email');
+
+                    // Mostrar datos en una ventana emergente
+                    Swal.fire({
+                        title: 'Registro completado',
+                        html: `
+                            <p><strong>Usuario:</strong> ${username}</p>
+                            <p><strong>Correo:</strong> ${email}</p>
+                        `,
+                        icon: 'success',
+                        confirmButtonText: 'Aceptar'
+                    }).then(() => {
+                        this.submit(); // Enviar el formulario
+                    });
+                }
+            });
+        });
+
+        document.getElementById('loginLink').addEventListener('click', function (event) {
+            event.preventDefault(); // Evitar redirección automática
+
+            // Mostrar mensaje de confirmación antes de cambiar de página
+            Swal.fire({
+                title: '¿Deseas cancelar el registro?',
+                text: 'Si cancelas, perderás la información que has ingresado.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Sí, cancelar',
+                cancelButtonText: 'Volver'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = this.href; // Redirigir a la página de inicio de sesión
+                }
+            });
+        });
+    </script>
 </body>
+
 </html>

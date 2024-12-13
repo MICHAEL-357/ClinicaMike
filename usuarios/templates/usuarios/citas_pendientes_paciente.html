@@ -1,0 +1,37 @@
+{% extends 'usuarios/base_dashboard_paciente.html' %}
+
+{% block content %}
+    <div class="container mt-5">
+        <h1 class="display-4 text-center text-primary mb-4">Citas Pendientes</h1>
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover table-striped shadow-sm">
+                <thead class="thead-dark">
+                    <tr>
+                        <th>#</th>
+                        <th>Doctor</th>
+                        <th>Motivo</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for cita in citas_pendientes %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>{{ cita.doctor.username }}</td>
+                        <td>{{ cita.motivo }}</td>
+                        <td>
+                            <a href="{% url 'detalle_cita' cita.id 'pendientes' %}" class="btn btn-info btn-sm px-4 py-2 rounded-pill">
+                                <i class="fas fa-eye"></i> Ver Detalles
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" class="text-center text-muted">No tienes citas pendientes</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}

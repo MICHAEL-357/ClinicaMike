@@ -1,0 +1,37 @@
+{% extends 'usuarios/base_dashboard_paciente.html' %}
+
+{% block content %}
+    <div class="container mt-5">
+        <h1 class="display-3 text-center text-danger mb-4 font-weight-bold">Citas Rechazadas</h1>
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover table-striped shadow-lg">
+                <thead class="thead-dark">
+                    <tr>
+                        <th>#</th>
+                        <th>Doctor</th>
+                        <th>Motivo</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for cita in citas_rechazadas %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>{{ cita.doctor.username }}</td>
+                        <td>{{ cita.motivo }}</td>
+                        <td>
+                            <a href="{% url 'detalle_cita' cita.id 'rechazadas' %}" class="btn btn-warning btn-sm px-4 py-2 rounded-pill shadow-sm">
+                                <i class="fas fa-eye"></i> Ver Detalles
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center text-muted">No tienes citas rechazadas</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}

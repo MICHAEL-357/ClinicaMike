@@ -27,6 +27,7 @@
                 <td>{{ usuario.date_joined }}</td>
             </tr>
         </table>
+        <a href="{{ request.META.HTTP_REFERER }}" class="btn btn-secondary mt-3">Volver</a>
         <a href="{% url 'dashboard_administrador' %}" class="btn btn-secondary">Volver al Dashboard</a>
     </div>
 </body>

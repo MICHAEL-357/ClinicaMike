@@ -1,0 +1,149 @@
+{% extends 'usuarios/base_dashboard_doctor.html' %}
+
+{% block content %}
+    <h2 class="text-center text-primary mb-4">Notificaciones para Doctor</h2>
+    <div class="table-responsive">
+        {% if notifications %}
+        <table class="table table-bordered table-hover table-modern-notifications">
+            <thead class="table-light">
+                <tr class="text-center">
+                    <th>#</th>
+                    <th>Mensaje</th>
+                    <th>Fecha</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for notification in notifications %}
+                <tr class="{% if not notification.is_read %}table-warning{% endif %}">
+                    <td class="text-center">{{ forloop.counter }}</td>
+                    <td>{{ notification.message }}</td>
+                    <td class="text-center">{{ notification.created_at|date:"d M Y H:i" }}</td>
+                    <td class="text-center">
+                        {% if not notification.is_read %}
+                            <button class="btn btn-sm btn-success mark-read" data-id="{{ notification.id }}">Marcar como leída</button>
+                        {% else %}
+                            <span class="text-muted">Leída</span>
+                        {% endif %}
+                        <button class="btn btn-sm btn-danger delete-notification" data-id="{{ notification.id }}">Eliminar</button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p class="text-center text-muted">No tienes notificaciones.</p>
+        {% endif %}
+    </div>
+<style>
+    .table-modern-notifications {
+        background: #ffffff;
+        border-radius: 8px;
+        overflow: hidden;
+        width: 95%;
+        max-width: 1200px;
+        margin: 0 auto;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .table-modern-notifications th, .table-modern-notifications td {
+        vertical-align: middle;
+    }
+
+    .table-warning {
+        background-color: #fff3cd;
+    }
+
+    .table-light {
+        background-color: #f8f9fa;
+    }
+
+    .btn-success {
+        background-color: #28a745;
+        border-color: #28a745;
+    }
+
+    .btn-success:hover {
+        background-color: #218838;
+        border-color: #1e7e34;
+    }
+
+    .btn-danger {
+        background-color: #dc3545;
+        border-color: #dc3545;
+    }
+
+    .btn-danger:hover {
+        background-color: #c82333;
+        border-color: #bd2130;
+    }
+
+    .text-muted {
+        font-style: italic;
+        color: #6c757d !important;
+    }
+</style>
+{% endblock %}
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const deleteButtons = document.querySelectorAll('.delete-notification');
+        const markReadButtons = document.querySelectorAll('.mark-read');
+
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+        // Eliminar notificaciones
+        deleteButtons.forEach(button => {
+            button.addEventListener('click', function () {
+                const notificationId = this.getAttribute('data-id');
+                fetch(`/eliminar-notificacion/${notificationId}/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrfToken
+                    },
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        this.closest('tr').remove(); // Elimina la fila completa de la tabla
+                    } else {
+                        alert(data.error || "Error al eliminar la notificación.");
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('No se pudo eliminar la notificación.');
+                });
+            });
+        });
+
+        // Marcar como leídas
+        markReadButtons.forEach(button => {
+            button.addEventListener('click', function () {
+                const notificationId = this.getAttribute('data-id');
+                fetch(`/marcar-como-leida/${notificationId}/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrfToken
+                    },
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        this.closest('tr').classList.remove('table-warning'); // Quita el fondo amarillo
+                        this.closest('tr').classList.add('table-light'); // Agrega un fondo más claro
+                        this.replaceWith('<span class="text-muted">Leída</span>'); // Reemplaza el botón por texto
+                    } else {
+                        alert(data.error || "Error al marcar como leída.");
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('No se pudo marcar como leída.');
+                });
+            });
+        });
+    });
+</script>

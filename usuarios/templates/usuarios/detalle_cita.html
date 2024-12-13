@@ -4,45 +4,70 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Detalles de la Cita</title>
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
-<body>
-    <div class="container">
-        <h1>Detalles de la Cita</h1>
-        <p><strong>Doctor:</strong> {{ cita.doctor.username }}</p>
-        <p><strong>Motivo:</strong> {{ cita.motivo }}</p>
-        <p><strong>Fecha Programada:</strong> 
-            {% if cita.fecha %}
-                {{ cita.fecha|date:"d \d\e F \d\e Y" }}
-            {% else %}
-                Pendiente
-            {% endif %}
-        </p>
-        <p><strong>Hora Programada:</strong> 
-            {% if cita.hora %}
-                {{ cita.hora|time:"H:i" }}
-            {% else %}
-                Pendiente
-            {% endif %}
-        </p>
-        
-        
-        <p><strong>Estado:</strong> 
-            {% if cita.estado == 'aceptada' %}
-                <span class="badge badge-success">Aceptada</span>
-            {% elif cita.estado == 'rechazada' %}
-                <span class="badge badge-danger">Rechazada</span>
-            {% else %}
-                <span class="badge badge-warning">Pendiente</span>
-            {% endif %}
-        </p>
-        {% if cita.estado == 'aceptada' %}
-    <a href="{% url 'editar_cita_paciente' cita.id %}" class="btn btn-warning">Editar Cita</a>
-{% else %}
-    <p class="text-muted">No puedes editar esta cita porque está en estado "{{ cita.estado }}".</p>
-{% endif %}
+<body class="bg-light">
+    <div class="container py-5">
+        <div class="card shadow-lg">
+            <div class="card-header bg-primary text-white">
+                <h1 class="h4 mb-0 text-center">Detalles de la Cita</h1>
+            </div>
+            <div class="card-body">
+                <p><strong>Doctor:</strong> {{ cita.doctor.username }}</p>
+                <p><strong>Motivo:</strong> {{ cita.motivo }}</p>
+                <p><strong>Fecha Programada:</strong> 
+                    {% if cita.fecha %}
+                        {{ cita.fecha|date:"d \d\e F \d\e Y" }}
+                    {% else %}
+                        <span class="text-muted">Pendiente</span>
+                    {% endif %}
+                </p>
+                <p><strong>Hora Programada:</strong> 
+                    {% if cita.hora %}
+                        {{ cita.hora|time:"H:i" }}
+                    {% else %}
+                        <span class="text-muted">Pendiente</span>
+                    {% endif %}
+                </p>
+                <p><strong>Estado:</strong> 
+                    {% if cita.estado == 'aceptada' %}
+                        <span class="badge bg-success">Aceptada</span>
+                    {% elif cita.estado == 'rechazada' %}
+                        <span class="badge bg-danger">Rechazada</span>
+                    {% else %}
+                        <span class="badge bg-warning text-dark">Pendiente</span>
+                    {% endif %}
+                </p>
 
-        <a href="{% url 'dashboard_paciente' paciente_id=cita.paciente.id %}" class="btn btn-primary">Volver</a>
+                {% if cita.estado == 'aceptada' %}
+                    <a href="{% url 'editar_cita_paciente' cita.id %}" class="btn btn-warning mb-3">
+                        <i class="bi bi-pencil"></i> Editar Cita
+                    </a>
+                {% else %}
+                    <p class="text-muted">No puedes editar esta cita porque está en estado "{{ cita.estado }}".</p>
+                {% endif %}
+            </div>
+            <div class="card-footer text-center">
+                {% if origen == 'pendientes' %}
+                    <a href="{% url 'citas_pendientes_paciente' %}" class="btn btn-outline-secondary me-2">
+                        <i class="bi bi-arrow-left"></i> Volver a Citas Pendientes
+                    </a>
+                {% elif origen == 'programadas' %}
+                    <a href="{% url 'citas_programadas_paciente' %}" class="btn btn-outline-secondary me-2">
+                        <i class="bi bi-arrow-left"></i> Volver a Citas Programadas
+                    </a>
+                {% elif origen == 'rechazadas' %}
+                    <a href="{% url 'citas_rechazadas_paciente' %}" class="btn btn-outline-secondary me-2">
+                        <i class="bi bi-arrow-left"></i> Volver a Citas Rechazadas
+                    </a>
+                {% endif %}
+                <a href="{% url 'dashboard_paciente' paciente.id %}" class="btn btn-secondary">
+                    <i class="bi bi-house"></i> Volver al Dashboard
+                </a>
+            </div>
+        </div>
     </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

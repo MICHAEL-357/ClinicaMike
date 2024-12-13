@@ -1,0 +1,41 @@
+{% extends "usuarios/base_dashboard_administrador.html" %}
+
+{% block content %}
+<!-- Título atractivo -->
+<div class="container my-4">
+    <h2 class="text-center text-success mb-4">Lista de Doctores</h2>
+
+    <!-- Tabla mejorada y responsiva -->
+    <div class="table-responsive">
+        <table class="table table-hover table-bordered table-striped">
+            <thead class="thead-dark">
+                <tr>
+                    <th>#</th>
+                    <th>Nombre de Usuario</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for doctor in doctores %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ doctor.username }}</td>
+                    <td>
+                        <a href="{% url 'ver_detalles_usuario' doctor.id %}" class="btn btn-info btn-sm">Ver detalles</a>
+                        <a href="{% url 'editar_usuario' doctor.id %}" class="btn btn-warning btn-sm">Editar</a>
+                        <a href="{% url 'eliminar_usuario' doctor.id %}" class="btn btn-danger btn-sm" 
+                           onclick="return confirm('¿Estás seguro de que deseas eliminar este usuario?');">
+                            Eliminar
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="3" class="text-center">No hay doctores registrados.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

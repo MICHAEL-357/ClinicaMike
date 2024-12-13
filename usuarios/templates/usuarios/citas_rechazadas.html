@@ -1,31 +1,73 @@
 {% extends 'usuarios/base_dashboard_doctor.html' %}
 
-
 {% block content %}
-    <h2>Citas Rechazadas</h2>
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>#</th>
-                <th>Paciente</th>
-                <th>Motivo</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for cita in citas_rechazadas %}
-            <tr>
-                <td>{{ forloop.counter }}</td>
-                <td>{{ cita.paciente.username }}</td>
-                <td>{{ cita.motivo }}</td>
-                <td>
-                    <a href="{% url 'detalles_cita_doctor' cita.id %}" class="btn btn-info">Ver Detalles</a>
-                </td>
-            </tr>
-            {% empty %}
-            <tr>
-                <td colspan="3" class="text-center">No hay citas rechazadas</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    <h2 class="text-center text-danger mb-4">Citas Rechazadas</h2>
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover table-modern-rejected">
+            <thead class="table-danger">
+                <tr class="text-center">
+                    <th>#</th>
+                    <th>Paciente</th>
+                    <th>Motivo</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for cita in citas_rechazadas %}
+                <tr class="table-row-rejected">
+                    <td class="text-center">{{ forloop.counter }}</td>
+                    <td>{{ cita.paciente.username }}</td>
+                    <td>{{ cita.motivo }}</td>
+                    <td class="text-center">
+                        <a href="{% url 'detalles_cita_doctor' cita.id 'rechazadas' %}" class="btn btn-info btn-sm">Ver Detalles</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4" class="text-center text-muted">No hay citas rechazadas</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+<style>
+    .table-modern-rejected {
+        background: #ffffff;
+        border-radius: 8px;
+        overflow: hidden;
+        width: 100%;
+        max-width: 1200px;
+        margin: 0 auto;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .table-modern-rejected th, .table-modern-rejected td {
+        vertical-align: middle;
+    }
+
+    .table-danger {
+        background-color: #dc3545;
+        color: white;
+    }
+
+    .table-row-rejected:hover {
+        background-color: #ffe5e9;
+        cursor: pointer;
+    }
+
+    .btn-info {
+        background-color: #17a2b8;
+        border-color: #17a2b8;
+    }
+
+    .btn-info:hover {
+        background-color: #138496;
+        border-color: #117a8b;
+    }
+
+    .text-muted {
+        font-style: italic;
+        color: #6c757d !important;
+    }
+</style>
 {% endblock %}

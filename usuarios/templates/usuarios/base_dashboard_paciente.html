@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Paciente</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f4f7fc;
+            font-family: Arial, sans-serif;
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            background-color: #333;
+            padding: 35px 20px;
+            color: white;
+        }
+
+        .sidebar {
+            width: 200px;
+            background-color: #333;
+            color: white;
+            height: 100vh;
+            position: fixed;
+            padding-top: 20px;
+            text-align: center;
+        }
+
+        .sidebar a {
+            display: block;
+            padding: 10px;
+            color: white;
+            text-decoration: none;
+        }
+
+        .sidebar a:hover {
+            background-color: #575757;
+        }
+
+        .main-content {
+            margin-left: 220px;
+            padding: 20px;
+        }
+
+        h1, h2 {
+            color: #4b8e8d;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Encabezado -->
+    <div class="navbar">
+        <div>Bienvenido, {{ user.username }}</div>
+        <a href="{% url 'cerrar_sesion' %}" class="btn btn-danger">Cerrar Sesión</a>
+
+    </div>
+
+    <!-- Barra lateral -->
+    <div class="sidebar">
+        <h3>Citas del Paciente</h3>
+        <a href="{% url 'dashboard_paciente' paciente_id=user.id %}"> 🏠 Inicio</a>
+        <a href="{% url 'citas_pendientes_paciente' %}"> ❓ Citas Pendientes</a>
+        <a href="{% url 'citas_programadas_paciente' %}"> 🩶 Citas Programadas</a>
+        <a href="{% url 'citas_rechazadas_paciente' %}"> ❌ Citas Rechazadas</a>
+        <a href="{% url 'notificaciones_paciente' %}">🔔 Notificaciones</a>
+        <a href="{% url 'perfil_paciente' %}"> 🌞 Perfil</a>
+    </div>
+
+    <!-- Contenido dinámico -->
+    <div class="main-content">
+        {% block content %}
+        {% endblock %}
+    </div>
+
+</body>
+</html>

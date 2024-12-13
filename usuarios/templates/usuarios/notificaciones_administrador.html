@@ -1,0 +1,89 @@
+{% extends 'usuarios/base_dashboard_administrador.html' %}
+
+{% block content %}
+<div class="container my-4">
+    <h2 class="text-center text-info mb-4">Notificaciones para Administrador</h2>
+    <hr>
+
+    {% if notifications %}
+        <ul class="list-group">
+            {% for notification in notifications %}
+                <li class="list-group-item">
+                    <strong>{{ notification.message }}</strong><br>
+                    <small class="text-muted">({{ notification.created_at|date:"d M Y H:i" }})</small><br>
+
+                    {% if not notification.is_read %}
+                        <button class="btn btn-sm btn-success mark-read" data-id="{{ notification.id }}">Marcar como leída</button>
+                    {% endif %}
+                    <button class="btn btn-sm btn-danger delete-notification" data-id="{{ notification.id }}">Eliminar</button>
+                </li>
+                <hr>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p class="text-center">No tienes notificaciones.</p>
+    {% endif %}
+</div>
+{% endblock %}
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const deleteButtons = document.querySelectorAll('.delete-notification');
+        const markReadButtons = document.querySelectorAll('.mark-read');
+
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+        deleteButtons.forEach(button => {
+            button.addEventListener('click', function () {
+                const notificationId = this.getAttribute('data-id');
+                fetch(`/eliminar-notificacion/${notificationId}/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrfToken
+                    },
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        this.parentElement.remove();
+                    } else {
+                        alert(data.error || "Error al eliminar la notificación.");
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('No se pudo eliminar la notificación.');
+                });
+            });
+        });
+
+        markReadButtons.forEach(button => {
+            button.addEventListener('click', function () {
+                const notificationId = this.getAttribute('data-id');
+                fetch(`/marcar-como-leida/${notificationId}/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrfToken
+                    },
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Notificación marcada como leída.');
+                        this.disabled = true;
+                        this.classList.add('btn-secondary'); // Cambiar color del botón
+                    } else {
+                        alert(data.error || "Error al marcar como leída.");
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('No se pudo marcar como leída.');
+                });
+            });
+        });
+    });
+</script>
+</html>

@@ -1,196 +1,23 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard de Paciente</title>
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        body {
-            background-color: #f4f7fc;
-            padding-top: 50px;
-            padding-bottom: 50px;
-        }
+{% extends 'usuarios/base_dashboard_paciente.html' %}
 
-        .container {
-            max-width: 900px;
-            margin: 0 auto;
-            background-color: white;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-        }
+{% block title %}Dashboard - Paciente{% endblock %}
 
-        .container p, .container h1, .container h2 {
-            color: #000000;
-        }
+{% block content %}
+    <div class="container-fluid text-center" style="height: 100vh; display: flex; flex-direction: column; justify-content: center;">
+        <!-- Título principal grande -->
+        <h1 class="display-1 font-weight-bold text-primary mb-4" style="font-size: 4rem; letter-spacing: 2px;">
+            ¡Bienvenido al Dashboard de Paciente!
+        </h1>
+        <!-- Subtítulo llamativo -->
+        <p class="lead" style="font-size: 1.75rem; color: #6c757d;">
+            Gestiona tus citas médicas de manera fácil y rápida.
+        </p>
 
-        h1 {
-            color: #4b8e8d;
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        h2 {
-            color: #396f6c;
-            margin-bottom: 20px;
-        }
-
-        p {
-            font-size: 16px;
-            text-align: center;
-            margin-bottom: 30px;
-        }
-
-        .cita-item {
-            background-color: #e9f9f4;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 15px;
-            color: #333;
-        }
-
-        .cita-item strong {
-            color: #4b8e8d;
-        }
-
-        .btn-custom {
-            background-color: #4b8e8d;
-            color: white;
-            border: none;
-            border-radius: 10px;
-            padding: 10px 20px;
-            text-decoration: none;
-        }
-
-        .btn-custom:hover {
-            background-color: #396f6c;
-            text-decoration: none;
-        }
-
-        .footer {
-            text-align: center;
-            margin-top: 30px;
-        }
-
-        .footer a {
-            color: #0000FF;
-            text-decoration: none;
-        }
-
-        .footer a:hover {
-            text-decoration: underline;
-        }
-    </style>
-</head>
-<body>
-
-    <div class="container">
-        <div class="row mb-4">
-            <div class="col text-center">
-                <a href="{% url 'registrar_cita' %}" class="btn-custom">Registrar una nueva cita</a>
-                <a href="#" class="btn-custom" id="logoutBtn">Cerrar sesión</a>
-            </div>
+        <!-- Botón para registrar una nueva cita -->
+        <div class="mt-5">
+            <a href="{% url 'registrar_cita' %}" class="btn btn-success btn-lg px-5 py-3" style="font-size: 1.5rem; text-transform: uppercase; border-radius: 50px;">
+                <i class="fas fa-calendar-plus"></i> Registrar Nueva Cita
+            </a>
         </div>
-
-        <h1>Bienvenido al Dashboard de Paciente</h1>
-        <p>Aquí puedes agendar tus citas médicas.</p>
-
-        <h2>Tus Citas Aceptadas</h2>
-        <table class="table table-bordered">
-            <thead>
-                <tr>
-                    <th>Fecha y Hora</th>
-                    <th>Doctor</th>
-                    <th>Motivo</th>
-                    <th>Acción</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for cita in citas %}
-                    {% if cita.estado == 'aceptada' %}
-                        <tr>
-                            <td>{{ cita.fecha|date:"d \d\e F \d\e Y" }} a las {{ cita.hora|time:"H:i" }}</td>
-                            <td>Dr. {{ cita.doctor.username }}</td>
-                            <td>{{ cita.motivo }}</td>
-                            <td><a href="{% url 'detalle_cita' cita.id %}" class="btn btn-info">Ver Detalles</a></td>
-                        </tr>
-                    {% endif %}
-                {% empty %}
-                    <tr><td colspan="4" class="text-center">No tienes citas aceptadas.</td></tr>
-                {% endfor %}
-            </tbody>
-        </table>
-
-        <h2>Tus Citas Pendientes</h2>
-        <table class="table table-bordered">
-            <thead>
-                <tr>
-                    <th>Fecha y Hora</th>
-                    <th>Doctor</th>
-                    <th>Motivo</th>
-                    <th>Acción</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for cita in citas %}
-                    {% if cita.estado == 'pendiente' %}
-                        <tr>
-                            <td>{{ cita.fecha|date:"d \d\e F \d\e Y" }} a las {{ cita.hora|time:"H:i" }}</td>
-                            <td>Dr. {{ cita.doctor.username }}</td>
-                            <td>{{ cita.motivo }}</td>
-                            <td><a href="{% url 'detalle_cita' cita.id %}" class="btn btn-info">Ver Detalles</a></td>
-                        </tr>
-                    {% endif %}
-                {% empty %}
-                    <tr><td colspan="4" class="text-center">No tienes citas pendientes.</td></tr>
-                {% endfor %}
-            </tbody>
-        </table>
-
-        <h2>Tus Citas Rechazadas</h2>
-        <table class="table table-bordered">
-            <thead>
-                <tr>
-                    <th>Fecha y Hora</th>
-                    <th>Doctor</th>
-                    <th>Motivo</th>
-                    <th>Acción</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for cita in citas %}
-                    {% if cita.estado == 'rechazada' %}
-                        <tr>
-                            <td>{{ cita.fecha|date:"d \d\e F \d\e Y" }} a las {{ cita.hora|time:"H:i" }}</td>
-                            <td>Dr. {{ cita.doctor.username }}</td>
-                            <td>{{ cita.motivo }}</td>
-                            <td><a href="{% url 'detalle_cita' cita.id %}" class="btn btn-info">Ver Detalles</a></td>
-                        </tr>
-                    {% endif %}
-                {% empty %}
-                    <tr><td colspan="4" class="text-center">No tienes citas rechazadas.</td></tr>
-                {% endfor %}
-            </tbody>
-        </table>
     </div>
-
-    <script>
-        document.querySelector('#logoutBtn').addEventListener('click', function(event) {
-            // Prevenir el comportamiento por defecto del enlace
-            event.preventDefault();
-
-            // Realizar la acción de cierre de sesión (esto depende de tu implementación, por ejemplo, un view que elimine la sesión)
-            fetch("{% url 'logout' %}", { method: 'POST' })
-                .then(response => {
-                    // Redirigir a la página de inicio después de cerrar sesión
-                    window.location.href = "{% url 'home' %}";
-                })
-                .catch(error => {
-                    console.error('Error al cerrar sesión:', error);
-                });
-        });
-    </script>
-
-</body>
-</html>
+{% endblock %}

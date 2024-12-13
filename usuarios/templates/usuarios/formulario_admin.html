@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solicitud de Cambios</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-5">
+        <h2 class="text-center">Solicitud de Cambios</h2>
+        <form method="post" action="{% url 'solicitud_cambio' %}">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label for="descripcion" class="form-label">Descripción del cambio</label>
+                <textarea class="form-control" id="descripcion" name="descripcion" rows="4" required></textarea>
+            </div>
+            <div class="mb-3">
+                <label for="motivo" class="form-label">Motivo</label>
+                <textarea class="form-control" id="motivo" name="motivo" rows="4" required></textarea>
+            </div>
+            <div class="mb-3">
+                <label for="nombre_usuario" class="form-label">Nombre de Usuario</label>
+                <input type="text" class="form-control" id="nombre_usuario" name="nombre_usuario" required>
+            </div>
+            <div class="mb-3">
+                <label for="correo" class="form-label">Correo Electrónico</label>
+                <input type="email" class="form-control" id="correo" name="correo" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Enviar</button>
+            <a href="javascript:history.back()" id="btnVolver" class="btn btn-secondary mb-3">Volver</a>
+        </form>
+        
+    </div>
+
+    <script>
+        const form = document.querySelector('form');
+        form.addEventListener('submit', function(e) {
+            if (!confirm('¿Estás seguro de enviar esta solicitud?')) {
+                e.preventDefault();  // Detiene el envío del formulario
+            }
+        });
+    </script>
+</body>
+</html>

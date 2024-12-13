@@ -13,12 +13,25 @@ from .forms import UsuarioForm
 from django.contrib import messages
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth import update_session_auth_hash
-
-
-
+from .models import Notification
+from .forms import EditarPerfilPacienteForm
+from django.contrib.auth import logout
+from django.contrib.auth.forms import PasswordChangeForm
+from django.contrib.auth import update_session_auth_hash
+from .forms import PasswordResetForm
+from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
+from django.http import JsonResponse
+from django.contrib.auth import get_user_model
+from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth import logout
     
 def home(request):
     return render(request, 'usuarios/home.html')
+
+def cerrar_sesion(request):
+    logout(request)
+    return redirect('home')  
 
 class CustomLoginView(LoginView):
     template_name = 'login.html'
@@ -69,10 +82,33 @@ def get_success_url(self):
 
 @login_required
 def dashboard_paciente(request, paciente_id):
-    paciente = get_object_or_404(Usuario, id=paciente_id)
-    citas = Cita.objects.filter(paciente=paciente).order_by('-fecha', '-hora')
+    # Validar que el usuario actual es el paciente correspondiente
+    if request.user.id != paciente_id or request.user.tipo_usuario != 'paciente':
+        return render(request, 'error.html', {'mensaje': 'No tienes permiso para acceder a esta página.'})
+    
+    # Obtener las citas del paciente
+    citas = Cita.objects.filter(paciente=request.user).order_by('-fecha', '-hora')
     
     return render(request, 'usuarios/dashboard_paciente.html', {'citas': citas})
+
+
+@login_required
+def citas_pendientes_paciente(request):
+    citas_pendientes = Cita.objects.filter(paciente=request.user, estado='pendiente').order_by('-fecha', '-hora')
+    return render(request, 'usuarios/citas_pendientes_paciente.html', {'citas_pendientes': citas_pendientes})
+
+@login_required
+def citas_programadas_paciente(request):
+    citas_programadas = Cita.objects.filter(paciente=request.user, estado='aceptada').order_by('-fecha', '-hora')
+    return render(request, 'usuarios/citas_programadas_paciente.html', {'citas_programadas': citas_programadas})
+
+@login_required
+def citas_rechazadas_paciente(request):
+    citas_rechazadas = Cita.objects.filter(paciente=request.user, estado='rechazada').order_by('-fecha', '-hora')
+    return render(request, 'usuarios/citas_rechazadas_paciente.html', {'citas_rechazadas': citas_rechazadas})
+
+
+
 
 @login_required
 def dashboard_doctor(request):
@@ -98,6 +134,7 @@ def citas_rechazadas(request):
 
 
 
+
 @login_required
 def dashboard_administrador(request):
     if request.user.tipo_usuario != 'admin':
@@ -108,10 +145,14 @@ def dashboard_administrador(request):
     doctores = Usuario.objects.filter(tipo_usuario='doctor')
     pacientes = Usuario.objects.filter(tipo_usuario='paciente')
 
+    # Obtener notificaciones no leídas del administrador
+    notifications = Notification.objects.filter(user=request.user, is_read=False).order_by('-created_at')
+
     return render(request, 'usuarios/dashboard_administrador.html', {
         'administradores': administradores,
         'doctores': doctores,
-        'pacientes': pacientes
+        'pacientes': pacientes,
+        'notifications': notifications  # Agregamos las notificaciones al contexto
     })
 
 
@@ -148,7 +189,20 @@ def registrar_cita(request):
     return render(request, 'usuarios/registrar_cita.html', {'doctores': doctores})
 
 
+@login_required
+def lista_administradores(request):
+    administradores = Usuario.objects.filter(tipo_usuario='admin')
+    return render(request, 'usuarios/lista_administradores.html', {'administradores': administradores})
 
+@login_required
+def lista_doctores(request):
+    doctores = Usuario.objects.filter(tipo_usuario='doctor')
+    return render(request, 'usuarios/lista_doctores.html', {'doctores': doctores})
+
+@login_required
+def lista_pacientes(request):
+    pacientes = Usuario.objects.filter(tipo_usuario='paciente')
+    return render(request, 'usuarios/lista_pacientes.html', {'pacientes': pacientes})
 
 
 class CitaForm(forms.ModelForm):
@@ -188,32 +242,37 @@ def programar_cita(request, cita_id):
         cita.estado = 'aceptada'
         cita.save()
 
-        return redirect('dashboard_doctor')
+        return redirect('citas_pendientes')
     
     return render(request, 'usuarios/programar_cita.html', {'cita': cita})
 
 
 @login_required
-def detalle_cita(request, cita_id):
+def detalle_cita(request, cita_id, origen):
     cita = get_object_or_404(Cita, id=cita_id)
+    paciente = cita.paciente
     
     # Verificamos que el usuario sea el paciente asociado a la cita
     if request.user != cita.paciente:
         return render(request, 'error.html', {'mensaje': 'No tienes permiso para ver los detalles de esta cita.'})
     
-    # Enviamos solo la información necesaria al contexto
+    # Enviamos el objeto paciente junto con la cita y el origen al contexto
     return render(request, 'usuarios/detalle_cita.html', {
-        'cita': cita
+        'cita': cita, 
+        'origen': origen, 
+        'paciente': paciente  # Agregar paciente al contexto
     })
+
     
 @login_required
-def detalles_cita_doctor(request, cita_id):
+def detalles_cita_doctor(request, cita_id, origen):
     cita = get_object_or_404(Cita, id=cita_id)
 
     if request.user.tipo_usuario != 'doctor' or cita.doctor != request.user:
         return render(request, 'error.html', {'mensaje': 'No tienes permiso para ver esta cita.'})
 
-    return render(request, 'usuarios/detalles_cita_doctor.html', {'cita': cita})
+    return render(request, 'usuarios/detalles_cita_doctor.html', {'cita': cita, 'origen': origen})
+
 
 
 
@@ -279,6 +338,13 @@ def editar_cita_paciente(request, cita_id):
         cita.hora = None  # Reseteamos la hora programada
         cita.save()
 
+        # Crear la notificación para el doctor
+        Notification.objects.create(
+            user=cita.doctor,  # Notificación dirigida al doctor
+            message=f"La cita de {cita.paciente.username} ha sido editada y está nuevamente en estado pendiente.\nMotivo: {cita.motivo}",
+            is_read=False  # Marca la notificación como no leída
+        )
+
         # Redirigimos al dashboard del paciente después de actualizar la cita
         return redirect('dashboard_paciente', paciente_id=paciente.id)
 
@@ -288,6 +354,7 @@ def editar_cita_paciente(request, cita_id):
         'doctores': doctores,
         'paciente': paciente,
     })
+
 
 
 @login_required
@@ -302,7 +369,7 @@ def rechazar_cita(request, cita_id):
     cita.save()
 
     # Redirigimos al dashboard del doctor
-    return redirect('dashboard_doctor')
+    return redirect('citas_pendientes')
 
 
 @login_required
@@ -392,12 +459,165 @@ def eliminar_usuario(request, pk):
 
 
 
+@login_required
+def notificaciones_administrador(request):
+    if request.user.tipo_usuario != 'admin':
+        return redirect('dashboard_{}'.format(request.user.tipo_usuario))
+
+    notifications = Notification.objects.filter(user=request.user).order_by('-created_at')
+    return render(request, 'usuarios/notificaciones_administrador.html', {
+        'notifications': notifications
+    })
+
+@login_required
+def marcar_como_leida(request, notification_id):
+    if request.method == 'POST':
+        try:
+            notification = get_object_or_404(Notification, id=notification_id, user=request.user)
+            notification.is_read = True
+            notification.save()
+            return JsonResponse({"success": True})
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=500)
+    return JsonResponse({"error": "Método no permitido."}, status=405)
+
+@csrf_exempt
+@login_required
+def eliminar_notificacion(request, notification_id):
+    if request.method == 'POST':
+        try:
+            notification = get_object_or_404(Notification, id=notification_id, user=request.user)
+            notification.delete()
+            return JsonResponse({"success": True})
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=500)
+    return JsonResponse({"error": "Método no permitido."}, status=405)
 
 
 
 
+@login_required
+def notificaciones_doctor(request):
+    if request.user.tipo_usuario != 'doctor':
+        return render(request, 'error.html', {'mensaje': 'No tienes permiso para acceder a esta página.'})
+
+    # Obtener todas las notificaciones del doctor
+    notifications = Notification.objects.filter(user=request.user).order_by('-created_at')
+
+    return render(request, 'usuarios/notificaciones_doctor.html', {
+        'notifications': notifications
+    })
+
+@login_required
+def notificaciones_paciente(request):
+    if request.user.tipo_usuario != 'paciente':
+        return render(request, 'error.html', {'mensaje': 'No tienes permiso para acceder a esta página.'})
+
+    # Obtener todas las notificaciones del paciente
+    notifications = Notification.objects.filter(user=request.user).order_by('-created_at')
+
+    return render(request, 'usuarios/notificaciones_paciente.html', {
+        'notifications': notifications
+    })
+
+
+
+@login_required
+def perfil_paciente(request):
+    if request.user.tipo_usuario != 'paciente':
+        return redirect('dashboard_paciente')  # Redirige si no es paciente
+
+    return render(request, 'usuarios/perfil_paciente.html')
 
 
 
 
+@login_required
+def editar_perfil_paciente(request):
+    if request.user.tipo_usuario != 'paciente':
+        return redirect('dashboard_paciente')
 
+    if request.method == 'POST':
+        form = EditarPerfilPacienteForm(request.POST, instance=request.user)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Cambios realizados exitosamente')  # Mensaje de éxito
+            return redirect('perfil_paciente')  # Redirigir a perfil_paciente
+        else:
+            for error in form.errors.get('username', []):
+                messages.error(request, error)
+    else:
+        form = EditarPerfilPacienteForm(instance=request.user)
+
+    return render(request, 'usuarios/editar_perfil_paciente.html', {'form': form})
+
+
+@login_required
+def restablecer_contrasena(request):
+    if request.method == 'POST':
+        form = PasswordChangeForm(request.user, request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "La contraseña se ha restablecido correctamente.")
+            return redirect('perfil_paciente')  # Redirige al perfil del paciente
+    else:
+        form = PasswordChangeForm(request.user)
+
+    return render(request, 'usuarios/restablecer_contrasena.html', {'form': form})
+
+
+def reset_password(request):
+    if request.method == 'POST':
+        email_or_username = request.POST.get('email_or_username')
+        new_password = request.POST.get('new_password')
+
+        try:
+            # Buscar usuario por correo o nombre de usuario
+            user = Usuario.objects.filter(email=email_or_username).first() or Usuario.objects.filter(username=email_or_username).first()
+
+            if not user:
+                return JsonResponse({'status': 'error', 'message': 'Usuario no encontrado. Verifica los datos ingresados.'}, status=404)
+
+            # Cambiar la contraseña del usuario
+            user.set_password(new_password)
+            user.save()
+
+            return JsonResponse({'status': 'success', 'message': 'Contraseña restablecida con éxito. Redirigiendo al inicio de sesión.'})
+
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'message': f'Error interno: {str(e)}'}, status=500)
+
+    # Si el método es GET, renderizar la plantilla del formulario
+    elif request.method == 'GET':
+        return render(request, 'usuarios/reset_password.html')
+
+    # Método no permitido
+    return JsonResponse({'status': 'error', 'message': 'Método no permitido.'}, status=405)
+
+User = get_user_model()
+
+
+def solicitud_cambio(request):
+    if request.method == 'POST':
+        descripcion = request.POST.get('descripcion')
+        motivo = request.POST.get('motivo')
+        nombre_usuario = request.POST.get('nombre_usuario')
+        correo = request.POST.get('correo')
+
+        # Obtener el primer usuario con tipo 'admin' (ajusta esto según tu lógica)
+        admin_user = User.objects.filter(tipo_usuario='admin').first()
+
+        if admin_user:
+            # Crear la notificación para el administrador
+            Notification.objects.create(
+                user=admin_user,  # Notificación dirigida al administrador
+                message=f"Solicitud de cambio de usuario:\n\n"
+                        f"Usuario Solicitante: {nombre_usuario}\n"
+                        f"Correo Electrónico: {correo}\n\n"
+                        f"Descripción: {descripcion}\nMotivo: {motivo}",
+                is_read=False  # Marca la notificación como no leída
+            )
+
+        return redirect('home')  # O donde quieras redirigir al usuario
+
+    return render(request, 'usuarios/formulario_admin.html')

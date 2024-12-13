@@ -1,0 +1,41 @@
+{% extends "usuarios/base_dashboard_administrador.html" %}
+
+{% block content %}
+<!-- Título con estilo atractivo -->
+<div class="container my-4">
+    <h2 class="text-center text-primary mb-4">Lista de Administradores</h2>
+
+    <!-- Tabla mejorada y responsiva -->
+    <div class="table-responsive">
+        <table class="table table-hover table-bordered table-striped">
+            <thead class="thead-dark">
+                <tr>
+                    <th>#</th>
+                    <th>Nombre de Usuario</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for admin in administradores %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ admin.username }}</td>
+                    <td>
+                        <a href="{% url 'ver_detalles_usuario' admin.id %}" class="btn btn-info btn-sm">Ver detalles</a>
+                        <a href="{% url 'editar_usuario' admin.id %}" class="btn btn-warning btn-sm">Editar</a>
+                        <a href="{% url 'eliminar_usuario' admin.id %}" class="btn btn-danger btn-sm" 
+                           onclick="return confirm('¿Estás seguro de que deseas eliminar este usuario?');">
+                            Eliminar
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="3" class="text-center">No hay administradores registrados.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

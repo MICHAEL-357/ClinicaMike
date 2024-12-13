@@ -33,7 +33,7 @@
 
         .sidebar a {
             display: block;
-            padding: 50px;
+            padding: 10px;
             color: white;
             text-decoration: none;
         }
@@ -52,7 +52,7 @@
             display: flex;
             justify-content: space-between;
             background-color: #333;
-            padding: 40px 80px;
+            padding: 30px 70px;
             color: white;
         }
 
@@ -78,16 +78,19 @@
 
     <div class="navbar">
         <div>Bienvenido, {{ user.username }}</div>
-        <div><a href="{% url 'home' %}" class="btn btn-danger">Cerrar sesión</a></div>
+        <a href="{% url 'cerrar_sesion' %}" class="btn btn-danger">Cerrar Sesión</a>
+
     </div>
 
     <div class="container">
 
         <!-- Barra lateral -->
         <div class="sidebar">
-            <a href="{% url 'citas_pendientes' %}">Citas Pendientes</a>
-            <a href="{% url 'citas_programadas' %}">Citas Programadas</a>
-            <a href="{% url 'citas_rechazadas' %}">Citas Rechazadas</a>
+            <a href="{% url 'dashboard_doctor' %}"> 🏠 Inicio</a>
+            <a href="{% url 'citas_pendientes' %}"> ❓ Citas Pendientes</a>
+            <a href="{% url 'citas_programadas' %}"> 🩶 Citas Programadas</a>
+            <a href="{% url 'citas_rechazadas' %}"> ❌ Citas Rechazadas</a>
+            <a href="{% url 'notificaciones_doctor' %}">🔔 Notificaciones</a>
         </div>
 
         <!-- Contenido principal -->

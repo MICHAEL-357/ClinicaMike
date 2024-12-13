@@ -1,7 +1,14 @@
 {% extends 'usuarios/base_dashboard_doctor.html' %}
 
-
 {% block content %}
-    <h1>Bienvenido al Dashboard, Doctor</h1>
-    <p>Aquí puedes gestionar tus citas y pacientes.</p>
+    <div class="container-fluid text-center" style="height: 80vh; display: flex; flex-direction: column; justify-content: center;">
+        <!-- Título principal grande -->
+        <h1 class="display-1 font-weight-bold text-info mb-4" style="font-size: 5rem; letter-spacing: 2px;">
+            ¡Bienvenido al Dashboard, Doctor!
+        </h1>
+        <!-- Subtítulo grande -->
+        <p class="lead" style="font-size: 2rem; color: #6c757d;">
+            Gestiona tus citas y pacientes de manera rápida y eficaz.
+        </p>
+    </div>
 {% endblock %}

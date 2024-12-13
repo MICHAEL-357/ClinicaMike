@@ -1,33 +1,98 @@
 {% extends 'usuarios/base_dashboard_doctor.html' %}
 
 {% block content %}
-    <h2>Citas Pendientes</h2>
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>#</th>
-                <th>Paciente</th>
-                <th>Motivo</th>
-                <th>Acciones</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for cita in citas_pendientes %}
-            <tr>
-                <td>{{ forloop.counter }}</td>
-                <td>{{ cita.paciente.username }}</td>
-                <td>{{ cita.motivo }}</td>
-                <td>
-                    <a href="{% url 'detalles_cita_doctor' cita.id %}" class="btn btn-info">Ver Detalles</a>
-                    <a href="{% url 'programar_cita' cita.id %}" class="btn-custom">Programar Cita</a>
-                    <a href="{% url 'rechazar_cita' cita.id %}" class="btn btn-danger" onclick="return confirm('¿Estás seguro de rechazar esta cita?')">Rechazar</a>
-                </td>
-            </tr>
-            {% empty %}
-            <tr>
-                <td colspan="4" class="text-center">No hay citas pendientes</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    <h2 class="text-center text-primary mb-4">Gestión de Citas Pendientes</h2>
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover table-luxury">
+            <thead class="table-dark">
+                <tr>
+                    <th>#</th>
+                    <th>Paciente</th>
+                    <th>Motivo</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for cita in citas_pendientes %}
+                <tr class="table-row-luxury">
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ cita.paciente.username }}</td>
+                    <td>{{ cita.motivo }}</td>
+                    <td>
+                        <a href="{% url 'detalles_cita_doctor' cita.id 'pendientes' %}" class="btn btn-info btn-sm">Ver Detalles</a>
+                        <a href="{% url 'programar_cita' cita.id %}" class="btn btn-success btn-sm">Programar Cita</a>
+                        <a href="javascript:void(0);" class="btn btn-danger btn-sm" onclick="confirmRechazo('{{ cita.id }}')">Rechazar</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4" class="text-center text-muted">No hay citas pendientes</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <style>
+        .table-luxury {
+            background: #f8f9fa;
+            border-radius: 8px;
+            overflow: hidden;
+            width: 100%; /* Incrementa el ancho de la tabla al 95% del contenedor */
+            max-width: 2400px; /* Permite un ancho máximo más amplio */
+            margin: 0 auto; /* Centra la tabla horizontalmente */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Añade una sombra sutil */
+        }
+        
+        .table-row-luxury:hover {
+            background-color: #e3f2fd;
+            cursor: pointer; /* Muestra un cursor de puntero al pasar el mouse */
+        }
+        
+        .btn-success {
+            background-color: #28a745;
+            border-color: #28a745;
+        }
+        
+        .btn-success:hover {
+            background-color: #218838;
+            border-color: #1e7e34;
+        }
+        
+        .text-muted {
+            font-style: italic;
+            color: #6c757d !important;
+        }
+
+        /* Hacer la tabla responsiva */
+        @media (max-width: 768px) {
+            .table-luxury th, .table-luxury td {
+                padding: 0.5rem; /* Reducir el padding en pantallas pequeñas */
+                font-size: 0.9rem; /* Reducir el tamaño de la fuente */
+            }
+        }
+    </style>
+
+    <!-- Importar SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        function confirmRechazo(citaId) {
+            Swal.fire({
+                title: '¿Estás seguro?',
+                text: "No podrás revertir esta acción.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Sí, rechazar cita',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = "{% url 'rechazar_cita' 0 %}".replace('0', citaId);
+                }
+            });
+        }
+    </script>
+
 {% endblock %}
